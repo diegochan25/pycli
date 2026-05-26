@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from input.key import Key
+from lib.input.key import Key
 
 
 class InputMapper(ABC):

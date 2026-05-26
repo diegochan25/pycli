@@ -1,9 +1,9 @@
 import sys
 import tty
 import termios
-from input.input_manager import InputManager
-from input.key import Key
-from input.unix.unix_mapper import UnixMapper
+from lib.input.input_manager import InputManager
+from lib.input.key import Key
+from lib.input.unix.unix_mapper import UnixMapper
 
 
 class UnixInput(InputManager):

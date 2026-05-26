@@ -1,7 +1,7 @@
 import sys
-from input.input_manager import InputManager
-from input.unix.unix_input import UnixInput
-from input.win32.win32_input import Win32Input
+from lib.input.input_manager import InputManager
+from lib.input.unix.unix_input import UnixInput
+from lib.input.win32.win32_input import Win32Input
 
 
 class InputManagerFactory:

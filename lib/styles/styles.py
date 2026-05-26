@@ -1,8 +1,8 @@
-from styles.style_keys import ColorKey, WeightKey
-from styles.text_color import TextColor
-from styles.background_color import BackgroundColor
-from styles.font_weight import FontWeight
-from styles.text_decoration import TextDecoration
+from lib.styles.style_keys import ColorKey, WeightKey
+from lib.styles.text_color import TextColor
+from lib.styles.background_color import BackgroundColor
+from lib.styles.font_weight import FontWeight
+from lib.styles.text_decoration import TextDecoration
 
 
 class Styles:

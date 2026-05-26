@@ -1,6 +1,6 @@
 from typing import Self
-from styles.line_style import LineStyle
-from styles.style_keys import WeightKey
+from lib.styles.line_style import LineStyle
+from lib.styles.style_keys import WeightKey
 
 
 class FontWeight(LineStyle):

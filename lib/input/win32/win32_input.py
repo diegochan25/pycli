@@ -1,7 +1,7 @@
 import msvcrt
-from input.input_manager import InputManager
-from input.key import Key
-from input.win32.win32_mapper import Win32Mapper
+from lib.input.input_manager import InputManager
+from lib.input.key import Key
+from lib.input.win32.win32_mapper import Win32Mapper
 
 
 class Win32Input(InputManager):

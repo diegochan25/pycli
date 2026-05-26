@@ -1,6 +1,6 @@
 from typing import Self
-from styles.line_style import LineStyle
-from styles.style_keys import DecorationKey
+from lib.styles.line_style import LineStyle
+from lib.styles.style_keys import DecorationKey
 
 class TextDecoration(LineStyle):
     ITALIC = "\x1b[3m"

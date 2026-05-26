@@ -1,5 +1,5 @@
-from input.input_mapper import InputMapper
-from input.key import Key
+from lib.input.input_mapper import InputMapper
+from lib.input.key import Key
 
 _SEQ_MAP: dict[str, Key] = {
     "\x1b[A": Key.ArrowUp,

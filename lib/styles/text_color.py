@@ -1,6 +1,6 @@
 from typing import Self
-from styles.style_keys import ColorKey
-from styles.line_style import LineStyle
+from lib.styles.style_keys import ColorKey
+from lib.styles.line_style import LineStyle
 
 
 class TextColor(LineStyle):
