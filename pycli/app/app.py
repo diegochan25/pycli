@@ -1,43 +1,47 @@
-from typing import Any, Callable, Type
-from pycli.protocol.command import Command
-from pycli.utils import Symbol
-
+from typing import Any, Callable
+from pycli.app.branch import Branch
 
 Tree = dict[str, Callable[..., Any] | "Tree"]
 
+
 class PyCLI:
-    exec = Symbol("exec")
     __tree: Tree
 
     def __init__(self):
         self.__tree = {}
 
-    def help(self, fn: Callable[..., Any]) -> Callable[..., str]:
-        self.__tree["help"] = fn
+    def help(self, fn: Callable[..., Any]) -> Callable[..., Any]:
+        print_help = lambda: print(fn())
+        self.__tree["help"] = print_help
+        self.__tree["--help"] = print_help
+        self.__tree["-h"] = print_help
+
         def wrapper(*args, **kwargs):
             return fn(*args, **kwargs)
+
         return wrapper
-    
-    def command(self, path: str) -> Callable[..., Type[Command]]:
-        def decorator(base_class: Type[Command]) -> Type[Command]:
-            fragments = path.split()
-            depth = self.__tree
-            for part in fragments[:-1]:
-                if part not in depth:
-                    depth[part] = {}
-                depth = depth[part]
-            if fragments[-1] in depth and self.exec() in fragments[-1]:
-                raise ValueError(f"Command '{path}' already exists.")
-            
-            depth[fragments[-1]] = {
-                "help": base_class.help,
-                self.exec(): base_class.exec
-            }
-            return base_class
+
+    def leaf(self, name: str, *aliases: str) -> Callable[..., Callable[..., Any]]:
+        def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+            for key in (name, *aliases):
+                if key in self.__tree:
+                    raise ValueError(f"Leaf '{key}' already exists.")
+            for key in (name, *aliases):
+                self.__tree[key] = fn
+            return fn
+
         return decorator
-    
+
+    def use(self, branch: Branch) -> None:
+        prefix = branch.prefix
+        aliases = branch.aliases
+        for cmd in [prefix, *aliases]:
+            if cmd in self.__tree:
+                raise ValueError(f"Branch '{cmd}' is already mounted.")
+            self.__tree[cmd] = branch._leaves()
+
     def run(self, args: list[str]) -> None:
-        exec_key = self.exec()
+        args = args[1:]
         depth = self.__tree
         i = 0
 
@@ -45,12 +49,12 @@ class PyCLI:
             token = args[i]
             if token not in depth:
                 break
-            next_node = depth[token]
-            if isinstance(next_node, dict) and exec_key in next_node:
-                next_node[exec_key](*args[i + 1:])
+            node = depth[token]
+            if callable(node):
+                node()
                 return
-            depth = next_node
+            depth = node
             i += 1
 
         if "help" in self.__tree and callable(self.__tree["help"]):
-            self.__tree["help"]()
+            print(self.__tree["help"]())

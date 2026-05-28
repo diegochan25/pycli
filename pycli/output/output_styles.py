@@ -4,4 +4,4 @@ from pycli.styles.styles import Styles
 
 @dataclass
 class OutputStyles:
-    message: Styles = Styles()
+    line: Styles = Styles()
