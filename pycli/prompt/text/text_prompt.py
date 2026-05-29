@@ -34,7 +34,3 @@ class TextPrompt(Prompt):
                 return ans
             print(self.styles.validator.line(self.validator))
 
-
-if __name__ == "__main__":
-    ans = TextPrompt(message="What's 9 + 10", required=True).render()
-    print(ans)

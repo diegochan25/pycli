@@ -17,4 +17,7 @@ class Result:
         return self._result[key]
     
     def get(self, key: str, default: Any = None) -> Any:
-         return self._result.get(key, default)
+        return self._result.get(key, default)
+
+    def to_dict(self) -> dict[str, Any]:
+        return dict(self._result)

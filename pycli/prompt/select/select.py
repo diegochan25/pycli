@@ -1,6 +1,8 @@
+from enum import Enum
+from typing import Any
 from pycli.prompt.prompt import Prompt
-from pycli.prompt.select.select_prompt_navigation import SelectPromptNavigation
-from pycli.prompt.select.select_prompt_styles import SelectPromptStyles
+from pycli.pycli.prompt.select.select_navigation import SelectPromptNavigation
+from pycli.pycli.prompt.select.select_styles import SelectPromptStyles
 
 
 class SelectPrompt(Prompt):
@@ -9,19 +11,26 @@ class SelectPrompt(Prompt):
 
     __index: int = 0
     options: list[str]
+    _values: list[Any]
     message: str
     navigation: SelectPromptNavigation
     styles: SelectPromptStyles
 
     def __init__(
         self,
-        options: list[str],
+        options: type[Enum] | list[str],
         message: str = "Choose an option below:",
         navigation: SelectPromptNavigation | None = None,
         styles: SelectPromptStyles | None = None,
     ):
         super().__init__()
-        self.options = options
+        if isinstance(options, type) and issubclass(options, Enum):
+            members = list(options)
+            self.options = [str(m.value) for m in members]
+            self._values = members
+        else:
+            self.options = list(options)
+            self._values = list(options)
         self.message = message
         self.navigation = navigation if navigation else SelectPromptNavigation()
         self.styles = styles if styles else SelectPromptStyles()
@@ -34,12 +43,12 @@ class SelectPrompt(Prompt):
         else:
             self.__index = index
 
-    def render(self) -> str:
+    def render(self) -> Any:
         self._draw()
         while True:
             key = self.input.get_key()
             if key == self.navigation.select:
-                return self.options[self.__index]
+                return self._values[self.__index]
             elif key == self.navigation.previous:
                 self.__safe_index(self.__index - 1)
             elif key == self.navigation.next:

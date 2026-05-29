@@ -1,5 +1,7 @@
+from enum import Enum
+from typing import Any
 from pycli.prompt.prompt import Prompt
-from pycli.prompt.multiple.multiple_select_prompt_navigation import MultipleSelectPromptNavigation
+from pycli.pycli.prompt.multiple.multiple_select_navigation import MultipleSelectPromptNavigation
 from pycli.prompt.multiple.multiple_select_prompt_styles import MultipleSelectPromptStyles
 
 
@@ -10,19 +12,26 @@ class MultipleSelectPrompt(Prompt):
     __index: int = 0
     __selected: set[int]
     options: list[str]
+    _values: list[Any]
     message: str
     navigation: MultipleSelectPromptNavigation
     styles: MultipleSelectPromptStyles
 
     def __init__(
         self,
-        options: list[str],
+        options: type[Enum] | list[str],
         message: str = "Choose all that apply:",
         navigation: MultipleSelectPromptNavigation | None = None,
         styles: MultipleSelectPromptStyles | None = None,
     ):
         super().__init__()
-        self.options = options
+        if isinstance(options, type) and issubclass(options, Enum):
+            members = list(options)
+            self.options = [str(m.value) for m in members]
+            self._values = members
+        else:
+            self.options = list(options)
+            self._values = list(options)
         self.message = message
         self.navigation = navigation if navigation else MultipleSelectPromptNavigation()
         self.styles = styles if styles else MultipleSelectPromptStyles()
@@ -45,12 +54,12 @@ class MultipleSelectPrompt(Prompt):
     def selected_indices(self) -> list[int]:
         return sorted(self.__selected)
 
-    def render(self) -> list[str]:
+    def render(self) -> list[Any]:
         self._draw()
         while True:
             key = self.input.get_key()
             if key == self.navigation.select:
-                return [self.options[i] for i in sorted(self.__selected)]
+                return [self._values[i] for i in sorted(self.__selected)]
             elif key == self.navigation.toggle:
                 self.__toggle()
             elif key == self.navigation.previous:
