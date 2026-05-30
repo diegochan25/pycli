@@ -4,12 +4,12 @@ from pycli.protocol.supports_render import SupportsRender
 
 
 @dataclass
-class BranchResult:
+class ForkResult:
     value: Any
     extra: dict[str, Any] = field(default_factory=dict)
 
 
-class Branch:
+class Fork:
     def __init__(
         self,
         prompt: SupportsRender,
@@ -20,16 +20,15 @@ class Branch:
         self._on = on
         self._default = default
 
-    def render(self) -> BranchResult:
-        from pycli.form.result import Result
-
+    def render(self) -> ForkResult:
         value = self._prompt.render()
         sub = self._on.get(value, self._default)
         extra: dict[str, Any] = {}
         if sub is not None:
             raw = sub.render()
-            if isinstance(raw, Result):
+            if hasattr(raw, "to_dict"):
                 extra = raw.to_dict()
             elif isinstance(raw, dict):
                 extra = raw
-        return BranchResult(value=value, extra=extra)
+        return ForkResult(value=value, extra=extra)
+

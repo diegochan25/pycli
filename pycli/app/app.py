@@ -1,3 +1,6 @@
+import sys
+
+from pycli.utils import Symbol
 from typing import Any, Callable
 from pycli.app.branch import Branch
 
@@ -5,16 +8,34 @@ Tree = dict[str, Callable[..., Any] | "Tree"]
 
 
 class PyCLI:
+    h = Symbol("help") 
     __tree: Tree
 
     def __init__(self):
         self.__tree = {}
 
+    @classmethod
+    def __to_namespace(cls, args: list[str]) -> dict[str, Any]:
+        argd = {}
+        key = ""
+        for arg in args:
+            if arg.startswith("-"):
+                key = arg.replace("-", "_").lstrip("_")
+                argd[key] = []
+            elif key:
+                argd[key].append(arg)
+
+        for key, value in argd.items():
+            if not value:
+                argd[key] = True
+            elif len(value) == 1:
+                argd[key] = value[0]
+        return argd
+
     def help(self, fn: Callable[..., Any]) -> Callable[..., Any]:
-        print_help = lambda: print(fn())
-        self.__tree["help"] = print_help
-        self.__tree["--help"] = print_help
-        self.__tree["-h"] = print_help
+        self.__tree[self.h()] = fn
+        self.__tree["--help"] = fn
+        self.__tree["-h"] = fn
 
         def wrapper(*args, **kwargs):
             return fn(*args, **kwargs)
@@ -40,8 +61,8 @@ class PyCLI:
                 raise ValueError(f"Branch '{cmd}' is already mounted.")
             self.__tree[cmd] = branch._leaves()
 
-    def run(self, args: list[str]) -> None:
-        args = args[1:]
+    def run(self) -> None:
+        args = sys.argv[1:]
         depth = self.__tree
         i = 0
 
@@ -51,10 +72,10 @@ class PyCLI:
                 break
             node = depth[token]
             if callable(node):
-                node()
+                node().render()
                 return
             depth = node
             i += 1
 
-        if "help" in self.__tree and callable(self.__tree["help"]):
-            print(self.__tree["help"]())
+        if self.h() in self.__tree and callable(self.__tree[self.h()]):
+            self.__tree[self.h()]().render()

@@ -1,1 +1,1 @@
-from .styles import Styles
+from .style import Style

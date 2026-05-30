@@ -1,21 +1,21 @@
-from typing import Any
 from pycli.protocol.supports_render import SupportsRender
-from pycli.form.result import Result
-from pycli.form.branch import BranchResult
+from pycli.form.form_data import FormData
+from pycli.form.fork import ForkResult
 
 
 class Form:
     def __init__(self, **fields: SupportsRender):
         self._fields = fields
 
-    def render(self) -> Result:
-        data: dict[str, Any] = {}
+    def render(self) -> FormData:
+        data = FormData()
         for name, field in self._fields.items():
             result = field.render()
-            if isinstance(result, BranchResult):
+            if isinstance(result, ForkResult):
                 if result.value is not None:
-                    data[name] = result.value
-                data.update(result.extra)
+                    setattr(data, name, result.value)
+                for k, v in result.extra.items():
+                    setattr(data, k, v)
             elif result is not None:
-                data[name] = result
-        return Result(data)
+                setattr(data, name, result)
+        return data

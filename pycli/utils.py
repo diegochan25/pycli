@@ -1,14 +1,13 @@
 from uuid import uuid4
 import hashlib
 from typing import NoReturn
-from pycli.styles.styles import Styles
+from pycli.styles.style import Style
 
-red = Styles(text="red")
+red = Style(text="red")
 
 def abort() -> NoReturn:
-    print(red.line("\nProgram aborted (Ctrl + C)."))
+    print(red.format("\nProgram aborted (Ctrl + C)."))
     exit(1)
-
 
 class Symbol:
     __name: str

@@ -1,28 +1,33 @@
-from pycli.styles.style_keys import ColorKey, WeightKey
+from typing import Unpack
+from pycli.styles.style_args import StyleArgs
 from pycli.styles.text_color import TextColor
 from pycli.styles.background_color import BackgroundColor
 from pycli.styles.font_weight import FontWeight
 from pycli.styles.text_decoration import TextDecoration
 
-
-class Styles:
+class Style:
     __reset = "\x1b[0m"
+
+    __before: str
+    __after: str
 
     __prefix: str
     __suffix: str
 
     def __init__(
         self,
-        text: ColorKey | None = None,
-        bg: ColorKey | None = None,
-        weight: WeightKey | None = None,
-        italic: bool = False,
-        underline: bool = False,
-        blink: bool = False,
-        invert: bool = False,
-        hidden: bool = False,
-        strikethrough: bool = False,
+        **kwargs: Unpack[StyleArgs]
     ):
+        self.__apply(**kwargs)
+
+    def set(self, **kwargs: Unpack[StyleArgs]) -> None:
+        self.__apply(**kwargs)
+
+    def __apply(self, **kwargs: Unpack[StyleArgs]) -> None:
+        text = kwargs.get("text")
+        bg = kwargs.get("bg")
+        weight = kwargs.get("weight")
+
         parts: list[str] = []
 
         if text:
@@ -40,14 +45,17 @@ class Styles:
             "hidden",
             "strikethrough",
         ):
-            if locals()[key]:
+            if kwargs.get(key):
                 parts.append(TextDecoration.from_key(key))
+
+        before = kwargs.get("before")
+        self.__before = before + " " if before else ""
+
+        after = kwargs.get("after")
+        self.__after = " " + after if after else ""
 
         self.__prefix = "".join(parts)
         self.__suffix = self.__reset if parts else ""
 
-    def line(self, line: str) -> str:
-        return f"{self.__prefix}{line}{self.__suffix}"
-
-    def lines(self, *lines: str) -> str:
-        return f"{self.__prefix}{'\n'.join(lines)}{self.__suffix}"
+    def format(self, line: str) -> str:
+        return f"{self.__prefix}{self.__before}{line}{self.__after}{self.__suffix}"

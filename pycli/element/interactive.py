@@ -1,18 +1,14 @@
-from abc import ABC, abstractmethod
+from pycli.element.element import Element
 from pycli.input.input_manager import InputManager
 from pycli.input.input_manager_factory import InputManagerFactory
 
 
-class Prompt(ABC):
+class Interactive(Element):
     input: InputManager
 
-    def __init__(self):
+    def __init__(self, name: str):
+        super().__init__(name)
         self.input = InputManagerFactory.create()
 
-    @abstractmethod
-    def _draw(self):
-        pass
-
-    @abstractmethod
-    def render(self):
+    def navigate(self) -> None:
         pass
